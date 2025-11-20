@@ -18,10 +18,10 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { name: 'Facebook', icon: '📘', url: '#' },
-    { name: 'Twitter', icon: '🐦', url: '#' },
-    { name: 'Instagram', icon: '📷', url: '#' },
-    { name: 'LinkedIn', icon: '💼', url: '#' }
+    { name: 'Facebook', icon: '', url: '#' },
+    { name: 'Twitter', icon: '', url: '#' },
+    { name: 'Instagram', icon: '', url: '#' },
+    { name: 'LinkedIn', icon: '', url: '#' }
   ];
 
   return (
@@ -43,16 +43,16 @@ const Footer = () => {
             </p>
             <div className="contact-info">
               <div className="contact-item">
-                <span className="contact-icon">📧</span>
+                <span className="contact-icon"></span>
                 <span>hello@madeasy.com</span>
               </div>
               <div className="contact-item">
-                <span className="contact-icon">📞</span>
-                <span>+1 (555) 123-4567</span>
+                <span className="contact-icon"></span>
+                <span>+254-7123-4567</span>
               </div>
               <div className="contact-item">
-                <span className="contact-icon">📍</span>
-                <span>123 Clean Street, Sparkle City</span>
+                <span className="contact-icon"></span>
+                <span>Nairobi, Kenya</span>
               </div>
             </div>
           </div>
@@ -87,7 +87,7 @@ const Footer = () => {
                     className="footer-link"
                     style={{ animationDelay: `${index * 0.1 + 0.2}s` }}
                   >
-                    <span className="link-icon">✨</span>
+                    <span className="link-icon"></span>
                     {service}
                   </a>
                 </li>

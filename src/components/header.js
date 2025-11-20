@@ -83,12 +83,12 @@ const Header = () => {
 
         {/* Auth Buttons */}
         <div className="auth-buttons">
-          <button className="auth-btn sign-in">
+          <Link to="/signin" className="auth-btn sign-in">
             Sign In
-          </button>
-          <button className="auth-btn sign-up">
+          </Link>
+          <Link to="/signup" className="auth-btn sign-up">
             Sign Up
-          </button>
+          </Link>
         </div>
       </div>
     </header>

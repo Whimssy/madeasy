@@ -25,6 +25,8 @@
 .logo {
   position: relative;
   cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .logo-text {
@@ -151,6 +153,10 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  min-width: 100px;
 }
 
 .auth-btn::before {
@@ -213,6 +219,7 @@
   .auth-btn {
     padding: 0.6rem 1.2rem;
     font-size: 0.9rem;
+    min-width: 80px;
   }
   
   .tooltip {
@@ -230,4 +237,13 @@
 /* Smooth transitions for all interactive elements */
 * {
   transition: all 0.2s ease;
+}
+
+/* Active state for navigation */
+.nav-link.active {
+  color: #667eea;
+}
+
+.nav-link.active::before {
+  width: 100%;
 }

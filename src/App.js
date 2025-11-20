@@ -3,6 +3,10 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/header';
 import Footer from './components/footer';
 import Homepage from './Pages/homepage';
+import SignUp from './components/Auth/SignUp';
+import SignIn from './components/Auth/SignIn';
+import BookingPage from './Pages/BookingPage';
+import FindClient from './Pages/FindClients';
 import './App.css';
 
 // Layout component that wraps all pages with Header and Footer
@@ -18,12 +22,30 @@ const Layout = ({ children }) => {
   );
 };
 
+// Auth Layout without Header/Footer
+const AuthLayout = ({ children }) => {
+  return (
+    <div className="auth-layout">
+      {children}
+    </div>
+  );
+};
+
+// FindClient Layout without Header/Footer (similar to AuthLayout)
+const FindClientLayout = ({ children }) => {
+  return (
+    <div className="find-client-layout">
+      {children}
+    </div>
+  );
+};
+
 function App() {
   return (
     <Router>
       <div className="App">
         <Routes>
-          {/* Homepage Route - Now includes services */}
+          {/* Homepage Route */}
           <Route 
             path="/" 
             element={
@@ -33,6 +55,45 @@ function App() {
             } 
           />
           
+          {/* Auth Routes */}
+          <Route 
+            path="/signup" 
+            element={
+              <AuthLayout>
+                <SignUp />
+              </AuthLayout>
+            } 
+          />
+          
+          <Route 
+            path="/signin" 
+            element={
+              <AuthLayout>
+                <SignIn />
+              </AuthLayout>
+            } 
+          />
+
+          {/* Booking Route */}
+          <Route 
+            path="/booking" 
+            element={
+              <Layout>
+                <BookingPage />
+              </Layout>
+            } 
+          />
+
+          {/* FindClient Route - UPDATED with FindClientLayout */}
+          <Route 
+            path="/find-client" 
+            element={
+              <FindClientLayout>
+                <FindClient />
+              </FindClientLayout>
+            } 
+          />
+                    
           {/* 404 Not Found Route */}
           <Route 
             path="*" 
