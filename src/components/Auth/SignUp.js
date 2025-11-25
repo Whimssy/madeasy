@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './Auth.css';
 
 const SignUp = () => {
@@ -9,11 +10,25 @@ const SignUp = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    userType: 'client' // client or cleaner
+    userType: 'client',
+    phone: ''
   });
 
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+  const { register, isAuthenticated, isLoading, errors: authErrors, clearErrors } = useAuth();
+  const navigate = useNavigate();
+
+  // REDIRECT ONLY WHEN AUTHENTICATED
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Clear errors when component unmounts
+  useEffect(() => {
+    return () => clearErrors();
+  }, [clearErrors]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,12 +36,13 @@ const SignUp = () => {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+    
+    // Clear specific error when user types
+    if (formErrors[name]) {
+      setFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
+    if (authErrors.message) {
+      clearErrors();
     }
   };
 
@@ -59,7 +75,7 @@ const SignUp = () => {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    setErrors(newErrors);
+    setFormErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -68,19 +84,15 @@ const SignUp = () => {
     
     if (!validateForm()) return;
 
-    setIsLoading(true);
+    // Prepare data for API (remove confirmPassword)
+    const { confirmPassword, ...submitData } = formData;
     
-    // Simulate API call
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log('Signup data:', formData);
-      // Here you would typically make an API call to your backend
-      alert('Account created successfully!');
-    } catch (error) {
-      console.error('Signup error:', error);
-      setErrors({ submit: 'Failed to create account. Please try again.' });
-    } finally {
-      setIsLoading(false);
+    const result = await register(submitData);
+    
+    if (result.success) {
+      console.log('✅ Signup successful! Redirecting...');
+    } else {
+      console.log('❌ Signup failed:', result.error);
     }
   };
 
@@ -129,10 +141,11 @@ const SignUp = () => {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
-                className={errors.firstName ? 'error' : ''}
+                className={formErrors.firstName ? 'error' : ''}
                 placeholder="Enter your first name"
+                disabled={isLoading}
               />
-              {errors.firstName && <span className="error-message">{errors.firstName}</span>}
+              {formErrors.firstName && <span className="error-message">{formErrors.firstName}</span>}
             </div>
 
             <div className="form-group">
@@ -143,10 +156,11 @@ const SignUp = () => {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
-                className={errors.lastName ? 'error' : ''}
+                className={formErrors.lastName ? 'error' : ''}
                 placeholder="Enter your last name"
+                disabled={isLoading}
               />
-              {errors.lastName && <span className="error-message">{errors.lastName}</span>}
+              {formErrors.lastName && <span className="error-message">{formErrors.lastName}</span>}
             </div>
           </div>
 
@@ -159,10 +173,25 @@ const SignUp = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={errors.email ? 'error' : ''}
+              className={formErrors.email ? 'error' : ''}
               placeholder="Enter your email"
+              disabled={isLoading}
             />
-            {errors.email && <span className="error-message">{errors.email}</span>}
+            {formErrors.email && <span className="error-message">{formErrors.email}</span>}
+          </div>
+
+          {/* Phone */}
+          <div className="form-group">
+            <label htmlFor="phone">Phone Number (Optional)</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Enter your phone number"
+              disabled={isLoading}
+            />
           </div>
 
           {/* Password */}
@@ -174,10 +203,11 @@ const SignUp = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className={errors.password ? 'error' : ''}
+              className={formErrors.password ? 'error' : ''}
               placeholder="Create a password"
+              disabled={isLoading}
             />
-            {errors.password && <span className="error-message">{errors.password}</span>}
+            {formErrors.password && <span className="error-message">{formErrors.password}</span>}
           </div>
 
           {/* Confirm Password */}
@@ -189,14 +219,20 @@ const SignUp = () => {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className={errors.confirmPassword ? 'error' : ''}
+              className={formErrors.confirmPassword ? 'error' : ''}
               placeholder="Confirm your password"
+              disabled={isLoading}
             />
-            {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+            {formErrors.confirmPassword && <span className="error-message">{formErrors.confirmPassword}</span>}
           </div>
 
-          {/* Submit Error */}
-          {errors.submit && <div className="submit-error">{errors.submit}</div>}
+          {/* Auth Error */}
+          {authErrors.message && (
+            <div className="submit-error">
+              <span className="error-icon">⚠️</span>
+              {authErrors.message}
+            </div>
+          )}
 
           {/* Submit Button */}
           <button 
@@ -214,15 +250,6 @@ const SignUp = () => {
             )}
           </button>
 
-          {/* Terms */}
-          <div className="auth-terms">
-            <p>
-              By creating an account, you agree to our{' '}
-              <a href="#terms">Terms of Service</a> and{' '}
-              <a href="#privacy">Privacy Policy</a>
-            </p>
-          </div>
-
           {/* Login Link */}
           <div className="auth-switch">
             <p>
@@ -231,13 +258,6 @@ const SignUp = () => {
             </p>
           </div>
         </form>
-
-        {/* Decorative Elements */}
-        <div className="auth-decoration">
-          <div className="decoration-circle circle-1"></div>
-          <div className="decoration-circle circle-2"></div>
-          <div className="decoration-circle circle-3"></div>
-        </div>
       </div>
     </div>
   );

@@ -486,3 +486,76 @@
     font-size: 2rem;
   }
 }
+
+/* Add to src/components/Auth/Auth.css */
+
+/* Demo Credentials Section */
+.demo-credentials {
+  background: rgba(102, 126, 234, 0.05);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.demo-credentials p {
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #667eea;
+  font-size: 0.9rem;
+}
+
+.demo-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.demo-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #667eea;
+  background: white;
+  color: #667eea;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.demo-btn:hover {
+  background: #667eea;
+  color: white;
+}
+
+.client-demo {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.cleaner-demo {
+  border-color: #f59e0b;
+  color: #f59e0b;
+}
+
+.client-demo:hover {
+  background: #667eea;
+  color: white;
+}
+
+.cleaner-demo:hover {
+  background: #f59e0b;
+  color: white;
+}
+
+/* Error message with icon */
+.submit-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error-icon {
+  font-size: 1.2rem;
+}

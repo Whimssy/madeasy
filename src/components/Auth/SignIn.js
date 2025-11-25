@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './Auth.css';
 
 const SignIn = () => {
@@ -9,67 +10,53 @@ const SignIn = () => {
     rememberMe: false
   });
 
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const { login, isAuthenticated, isLoading, errors, clearErrors } = useAuth();
+  const navigate = useNavigate();
 
+  // FIXED: Redirect only when authenticated AND not loading
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      console.log('🚀 Redirecting to homepage...');
+      navigate('/', { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  // FIXED: Remove the problematic clearErrors useEffect
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateForm()) return;
+    if (!formData.email.trim() || !formData.password) {
+      return;
+    }
 
-    setIsLoading(true);
+    console.log('📤 Attempting login...');
+    const result = await login(formData.email, formData.password);
     
-    // Simulate API call
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log('Signin data:', formData);
-      // Here you would typically make an API call to your backend
-      alert('Signed in successfully!');
-    } catch (error) {
-      console.error('Signin error:', error);
-      setErrors({ submit: 'Invalid email or password. Please try again.' });
-    } finally {
-      setIsLoading(false);
+    if (result.success) {
+      console.log('✅ SignIn: Login successful, waiting for redirect...');
+    } else {
+      console.log('❌ SignIn: Login failed:', result.error);
     }
   };
 
-  const handleForgotPassword = (e) => {
-    e.preventDefault();
-    // Implement forgot password logic here
-    alert('Forgot password functionality would open here.');
+  const fillDemoCredentials = (type) => {
+    const demos = {
+      client: { email: 'client@demo.com', password: 'password123' },
+      cleaner: { email: 'cleaner@demo.com', password: 'password123' }
+    };
+    
+    setFormData(prev => ({
+      ...prev,
+      ...demos[type]
+    }));
   };
 
   return (
@@ -83,6 +70,29 @@ const SignIn = () => {
           <p>Sign in to your account to continue</p>
         </div>
 
+        {/* Demo Credentials */}
+        <div className="demo-credentials">
+          <p>Quick test:</p>
+          <div className="demo-buttons">
+            <button 
+              type="button" 
+              className="demo-btn client-demo"
+              onClick={() => fillDemoCredentials('client')}
+              disabled={isLoading}
+            >
+              Client Demo
+            </button>
+            <button 
+              type="button" 
+              className="demo-btn cleaner-demo"
+              onClick={() => fillDemoCredentials('cleaner')}
+              disabled={isLoading}
+            >
+              Cleaner Demo
+            </button>
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className="auth-form">
           {/* Email */}
           <div className="form-group">
@@ -93,10 +103,9 @@ const SignIn = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={errors.email ? 'error' : ''}
               placeholder="Enter your email"
+              disabled={isLoading}
             />
-            {errors.email && <span className="error-message">{errors.email}</span>}
           </div>
 
           {/* Password */}
@@ -108,32 +117,18 @@ const SignIn = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className={errors.password ? 'error' : ''}
               placeholder="Enter your password"
+              disabled={isLoading}
             />
-            {errors.password && <span className="error-message">{errors.password}</span>}
-          </div>
-
-          {/* Remember Me & Forgot Password */}
-          <div className="form-options">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                name="rememberMe"
-                checked={formData.rememberMe}
-                onChange={handleChange}
-              />
-              <span className="checkmark"></span>
-              Remember me
-            </label>
-            
-            <a href="#forgot-password" onClick={handleForgotPassword} className="forgot-password">
-              Forgot password?
-            </a>
           </div>
 
           {/* Submit Error */}
-          {errors.submit && <div className="submit-error">{errors.submit}</div>}
+          {errors.message && (
+            <div className="submit-error">
+              <span className="error-icon">⚠️</span>
+              {errors.message}
+            </div>
+          )}
 
           {/* Submit Button */}
           <button 
@@ -159,31 +154,6 @@ const SignIn = () => {
             </p>
           </div>
         </form>
-
-        {/* Social Login (Optional) */}
-        <div className="social-login">
-          <div className="divider">
-            <span>Or continue with</span>
-          </div>
-          
-          <div className="social-buttons">
-            <button type="button" className="social-btn google-btn">
-              <span className="social-icon">🔍</span>
-              Google
-            </button>
-            <button type="button" className="social-btn facebook-btn">
-              <span className="social-icon">📘</span>
-              Facebook
-            </button>
-          </div>
-        </div>
-
-        {/* Decorative Elements */}
-        <div className="auth-decoration">
-          <div className="decoration-circle circle-1"></div>
-          <div className="decoration-circle circle-2"></div>
-          <div className="decoration-circle circle-3"></div>
-        </div>
       </div>
     </div>
   );
